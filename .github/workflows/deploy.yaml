@@ -51,3 +51,42 @@ jobs:
       - name: Push Docker image
         run: |
           docker push ghcr.io/haihungnguyenn/cicd-handon/api:${{ env.IMAGE_TAG }}
+
+  pull_and_run:
+    needs: build_and_publish
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+  
+      - name: Configure SSH Key
+        run: |
+          mkdir -p $HOME/.ssh
+          touch $HOME/.ssh/azure_vm_key
+          echo "${{ secrets.AZURE_SSH_KEY }}" > $HOME/.ssh/azure_vm_key
+          chmod 600 $HOME/.ssh/azure_vm_key
+  
+      - name: Deploy to Azure VM
+        run: |
+          ssh -i ~/.ssh/azure_vm_key \
+              -o StrictHostKeyChecking=no \
+              ${{ secrets.AZURE_VM_HOST }} \
+              bash -c '
+                # Stop and remove existing containers
+                docker-compose -f /app/docker-compose.yml down &&
+          
+                # Log in to GitHub Container Registry
+                echo ${{ secrets.GHCR_TOKEN }} | docker login ghcr.io -u ${{ secrets.GHCR_USERNAME }} --password-stdin &&
+          
+                # Export the image tag as an environment variable
+                export IMAGE_TAG=${{ env.IMAGE_TAG }} &&
+          
+                # Pull the new image
+                docker-compose -f /app/docker-compose.yml pull &&
+          
+                # Restart the containers with the new image
+                docker-compose -f /app/docker-compose.yml up -d
+              '
+  
+      
+            

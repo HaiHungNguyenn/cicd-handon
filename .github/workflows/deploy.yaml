@@ -1,8 +1,9 @@
 name: Deploy
-on: 
+on:
   push:
-      branches:
-        - development
+    branches:
+      - production
+      - development
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -13,16 +14,43 @@ jobs:
         
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
-        
-      - name: Install Docker Compose
-        run: |
-          sudo curl -L "https://github.com/docker/compose/releases/download/$(curl -s https://api.github.com/repos/docker/compose/releases/latest | grep 'tag_name' | cut -d\" -f4)/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-          sudo chmod +x /usr/local/bin/docker-compose
           
       - name: Log in to GitHub Container Registry
         run: echo ${{ secrets.GHCR_TOKEN }} | docker login ghcr.io -u ${{ secrets.GHCR_USERNAME }} --password-stdin
-        
-      - name: Build and push Docker image
+
+      - name: Install Docker Compose
+        run: |
+          sudo curl -L "https://github.com/docker/compose/releases/download/$(curl -s https://api.github.com/repos/docker/compose/releases/latest | grep 'tag_name' | cut -d\" -f4)/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose 
+
+      - name: Set Image Tag
+        id: set_tag
+        run: |
+          # Set build date format
+          BUILD_DATE=$(date +'%d-%m-%H:%M')
+
+          # Determine the tag based on the branch
+          if [ "${GITHUB_REF##*/}" == "production" ]; then
+            IMAGE_TAG="production-${BUILD_DATE}"
+          elif [ "${GITHUB_REF##*/}" == "development" ]; then
+            IMAGE_TAG="develop-${BUILD_DATE}"
+          else
+            echo "Unsupported branch: ${GITHUB_REF##*/}"
+            exit 1
+          fi
+
+          echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_ENV
+
+      - name: Build Docker image
         run: |
           docker-compose build
-          docker-compose push
+          docker tag ghcr.io/haihungnguyenn/cicd-handon/api:latest ghcr.io/haihungnguyenn/cicd-handon/api:${IMAGE_TAG}
+          
+  publish:
+    runs-on: ubuntu-latest
+    steps: 
+      - name: Push Docker image
+        run: |
+          docker push ghcr.io/haihungnguyenn/cicd-handon/api:${IMAGE_TAG}
+      
+    

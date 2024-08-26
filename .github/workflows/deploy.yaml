@@ -74,19 +74,20 @@ jobs:
               bash -c '
                 echo "Connected successfully" &&
                 cd docker-compose-collection/handon-cicd &&
-          
+
+                # Update the Docker Compose file with the new image tag
+                sed -i "s|ghcr.io/haihungnguyenn/cicd-handon/api:latest|ghcr.io/haihungnguyenn/cicd-handon/api:${{ env.IMAGE_TAG }}|g" docker-compose.yml &&
+
                 # Stop and remove existing containers
                 docker-compose down &&
-          
+
                 # Log in to GitHub Container Registry
                 echo ${{ secrets.GHCR_TOKEN }} | docker login ghcr.io -u ${{ secrets.GHCR_USERNAME }} --password-stdin &&
-          
-                # Export the image tag as an environment variable
-                export IMAGE_TAG=${{ env.IMAGE_TAG }} &&
-          
+
                 # Pull the new image
                 docker-compose pull &&
-          
+
                 # Restart the containers with the new image
                 docker-compose up -d
               '
+      

@@ -72,8 +72,9 @@ jobs:
               -o StrictHostKeyChecking=no \
               ${{ secrets.AZURE_VM_HOST }} \
               bash -c '
-                echo "Connected successfully"
-                ls docker-compose-collection/handon-cicd/ 
+                echo "Connected successfully" &&
+                ls docker-compose-collection/handon-cicd/
+              '
                 
 #                # Stop and remove existing containers
 #                docker-compose -f /docker-compose-collection/handon-cicd/docker-compose.yml down &&
@@ -89,7 +90,6 @@ jobs:
 #          
 #                # Restart the containers with the new image
 #                docker-compose -f /docker-compose-collection/handon-cicd/docker-compose.yml up -d
-              '
   
       
             

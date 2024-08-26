@@ -44,11 +44,12 @@ jobs:
           fi
 
           echo "image_tag=${IMAGE_TAG}" >> "$GITHUB_OUTPUT"
-          
+
       - name: Build Docker image
         run: |
           docker-compose build
           docker tag ghcr.io/haihungnguyenn/cicd-handon/api:latest ghcr.io/haihungnguyenn/cicd-handon/api:${{ steps.set_tag.outputs.image_tag }}
+          docker images # List images to verify the tag
 
   publish:
     runs-on: ubuntu-latest
@@ -56,8 +57,10 @@ jobs:
     steps:
       - name: Log in to GitHub Container Registry
         run: echo ${{ secrets.GHCR_TOKEN }} | docker login ghcr.io -u ${{ secrets.GHCR_USERNAME }} --password-stdin
-      - env:
-          IMAGE_TAG: ${{ needs.build.outputs.image_tag }}
+
+      - name: List Docker images
+        run: docker images | grep "${{ needs.build.outputs.image_tag }}"
+
+      - name: Push Docker image
         run: |
-          echo "********** $IMAGE_TAG"
-          docker push ghcr.io/haihungnguyenn/cicd-handon/api:$IMAGE_TAG
+          docker push ghcr.io/haihungnguyenn/cicd-handon/api:${{ needs.build.outputs.image_tag }}

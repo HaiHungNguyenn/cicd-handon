@@ -1,9 +1,9 @@
-﻿services:
+﻿version: '3'
+services:
   api:
-    image: ghcr.io/haihungnguyenn/cicd-handon/api:001
+    image: ghcr.io/haihungnguyenn/cicd-handon/api:latest
     ports:
       - 10000:8080
     build:
       context: .
       dockerfile: MainService/Dockerfile
-      

@@ -1,0 +1,9 @@
+﻿services:
+  api:
+    image: ghcr.io/haihungnguyenn/cicd-handon/api:001
+    ports:
+      - 10000:8080
+    build:
+      context: .
+      dockerfile: MainService/Dockerfile
+      

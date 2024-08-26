@@ -72,20 +72,23 @@ jobs:
               -o StrictHostKeyChecking=no \
               ${{ secrets.AZURE_VM_HOST }} \
               bash -c '
-                # Stop and remove existing containers
-                docker-compose -f /docker-compose-collection/handon-cicd/docker-compose.yml down &&
-          
-                # Log in to GitHub Container Registry
-                echo ${{ secrets.GHCR_TOKEN }} | docker login ghcr.io -u ${{ secrets.GHCR_USERNAME }} --password-stdin &&
-          
-                # Export the image tag as an environment variable
-                export IMAGE_TAG=${{ env.IMAGE_TAG }} &&
-          
-                # Pull the new image
-                docker-compose -f /docker-compose-collection/handon-cicd/docker-compose.yml pull &&
-          
-                # Restart the containers with the new image
-                docker-compose -f /docker-compose-collection/handon-cicd/docker-compose.yml up -d
+                
+                ls docker-compose-collection/handon-cicd/ 
+                
+#                # Stop and remove existing containers
+#                docker-compose -f /docker-compose-collection/handon-cicd/docker-compose.yml down &&
+#          
+#                # Log in to GitHub Container Registry
+#                echo ${{ secrets.GHCR_TOKEN }} | docker login ghcr.io -u ${{ secrets.GHCR_USERNAME }} --password-stdin &&
+#          
+#                # Export the image tag as an environment variable
+#                export IMAGE_TAG=${{ env.IMAGE_TAG }} &&
+#          
+#                # Pull the new image
+#                docker-compose -f /docker-compose-collection/handon-cicd/docker-compose.yml pull &&
+#          
+#                # Restart the containers with the new image
+#                docker-compose -f /docker-compose-collection/handon-cicd/docker-compose.yml up -d
               '
   
       

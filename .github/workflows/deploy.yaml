@@ -72,9 +72,9 @@ jobs:
               -o StrictHostKeyChecking=no \
               ${{ secrets.AZURE_VM_HOST }} \
               bash -c '
-                echo "Connected successfully" &&
+                echo "Connected successfully ${{ env.IMAGE_TAG }}" &&
                 cd docker-compose-collection/handon-cicd &&
-
+              
                 # Update the Docker Compose file with the new image tag
                 sed -i "s|ghcr.io/haihungnguyenn/cicd-handon/api:latest|ghcr.io/haihungnguyenn/cicd-handon/api:${{ env.IMAGE_TAG }}|g" docker-compose.yml &&
 

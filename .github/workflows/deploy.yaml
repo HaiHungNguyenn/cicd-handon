@@ -65,7 +65,7 @@ jobs:
           touch $HOME/.ssh/azure_vm_key
           echo "${{ secrets.AZURE_SSH_KEY }}" > $HOME/.ssh/azure_vm_key
           chmod 600 $HOME/.ssh/azure_vm_key
-  
+
       - name: Deploy to Azure VM
         run: |
           ssh -i ~/.ssh/azure_vm_key \
@@ -73,24 +73,20 @@ jobs:
               ${{ secrets.AZURE_VM_HOST }} \
               bash -c '
                 echo "Connected successfully" &&
-                cd docker-compose-collection/handon-cicd/
+                cd docker-compose-collection/handon-cicd &&
+          
                 # Stop and remove existing containers
-                docker-compose -f down &&
-
+                docker-compose down &&
+          
                 # Log in to GitHub Container Registry
                 echo ${{ secrets.GHCR_TOKEN }} | docker login ghcr.io -u ${{ secrets.GHCR_USERNAME }} --password-stdin &&
-
+          
                 # Export the image tag as an environment variable
                 export IMAGE_TAG=${{ env.IMAGE_TAG }} &&
-
+          
                 # Pull the new image
-                docker-compose -f pull &&
-
+                docker-compose pull &&
+          
                 # Restart the containers with the new image
-                docker-compose -f up -d
+                docker-compose up -d
               '
-                
-               
-  
-      
-            

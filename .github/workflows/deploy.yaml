@@ -37,15 +37,14 @@ jobs:
           if [ "${GITHUB_REF##*/}" == "production" ]; then
             IMAGE_TAG="production-${BUILD_DATE}"
           elif [ "${GITHUB_REF##*/}" == "development" ]; then
-            IMAGE_TAG="develop-${BUILD_DATE}"
+            IMAGE_TAG="development-${BUILD_DATE}"
           else
             echo "Unsupported branch: ${GITHUB_REF##*/}"
             exit 1
           fi
 
-          echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_ENV
-          echo "::set-output name=image_tag::${IMAGE_TAG}"
-
+          echo "image_tag=${IMAGE_TAG}" >> "$GITHUB_OUTPUT"
+          
       - name: Build Docker image
         run: |
           docker-compose build
@@ -57,7 +56,8 @@ jobs:
     steps:
       - name: Log in to GitHub Container Registry
         run: echo ${{ secrets.GHCR_TOKEN }} | docker login ghcr.io -u ${{ secrets.GHCR_USERNAME }} --password-stdin
-
-      - name: Push Docker image
+      - env:
+          IMAGE_TAG: ${{ needs.build.outputs.image_tag }}
         run: |
-          docker push ghcr.io/haihungnguyenn/cicd-handon/api:${{ needs.build.outputs.image_tag }}
+          echo "********** $IMAGE_TAG"
+          docker push ghcr.io/haihungnguyenn/cicd-handon/api:$IMAGE_TAG

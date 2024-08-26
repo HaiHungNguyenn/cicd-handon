@@ -52,42 +52,27 @@ jobs:
         run: |
           docker push ghcr.io/haihungnguyenn/cicd-handon/api:${{ env.IMAGE_TAG }}
 
-  pull_and_run:
-    needs: build_and_publish
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-  
-      - name: Configure SSH Key
-        run: |
-          mkdir -p $HOME/.ssh
-          touch $HOME/.ssh/azure_vm_key
-          echo "${{ secrets.AZURE_SSH_KEY }}" > $HOME/.ssh/azure_vm_key
-          chmod 600 $HOME/.ssh/azure_vm_key
-
       - name: Deploy to Azure VM
         run: |
           ssh -i ~/.ssh/azure_vm_key \
               -o StrictHostKeyChecking=no \
               ${{ secrets.AZURE_VM_HOST }} \
               bash -c '
-                echo "Connected successfully ${{ env.IMAGE_TAG }}" &&
+                echo "Connected successfully" &&
                 cd docker-compose-collection/handon-cicd &&
-              
-                # Update the Docker Compose file with the new image tag
-                sed -i "s|ghcr.io/haihungnguyenn/cicd-handon/api:latest|ghcr.io/haihungnguyenn/cicd-handon/api:${{ env.IMAGE_TAG }}|g" docker-compose.yml &&
-
-                # Stop and remove existing containers
+                export IMAGE_TAG="${{ env.IMAGE_TAG }}" &&
+                echo "Updating Docker Compose file with tag $IMAGE_TAG" &&
+                sed -i "s|ghcr.io/haihungnguyenn/cicd-handon/api:latest|ghcr.io/haihungnguyenn/cicd-handon/api:$IMAGE_TAG|g" docker-compose.yml &&
+                echo "Docker Compose file updated. Contents:" &&
+                cat docker-compose.yml &&
+                echo "Stopping and removing existing containers" &&
                 docker-compose down &&
-
-                # Log in to GitHub Container Registry
+                echo "Logging in to GitHub Container Registry" &&
                 echo ${{ secrets.GHCR_TOKEN }} | docker login ghcr.io -u ${{ secrets.GHCR_USERNAME }} --password-stdin &&
-
-                # Pull the new image
+                echo "Pulling the new image" &&
                 docker-compose pull &&
-
-                # Restart the containers with the new image
+                echo "Restarting containers with new image" &&
                 docker-compose up -d
               '
+
       

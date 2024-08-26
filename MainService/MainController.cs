@@ -11,9 +11,15 @@ public class MainController : ControllerBase
         return Ok("Hello");
     }
     
-    [HttpPost("/goodbye")]
+    [HttpGet("/goodbye")]
     public IActionResult GoodBye()
     {
         return Ok("Good bye.");
+    }
+
+    [HttpGet("/greet")]
+    public IActionResult Greet()
+    {
+        return Ok("Greet.");
     }
 }

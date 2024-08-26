@@ -4,6 +4,6 @@ services:
     build:
       context: .
       dockerfile: MainService/Dockerfile
-    image: ghcr.io/haihungnguyenn/cicd-handon/api:latest
+    image: ghcr.io/haihungnguyenn/cicd-handon/api:${IMAGE_TAG}
     ports:
       - 10000:8080

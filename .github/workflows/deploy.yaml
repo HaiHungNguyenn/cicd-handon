@@ -73,7 +73,7 @@ jobs:
               ${{ secrets.AZURE_VM_HOST }} \
               bash -c '
                 # Stop and remove existing containers
-                docker-compose -f /app/docker-compose.yml down &&
+                docker-compose -f /docker-compose-collection/cicd-handon/docker-compose.yml down &&
           
                 # Log in to GitHub Container Registry
                 echo ${{ secrets.GHCR_TOKEN }} | docker login ghcr.io -u ${{ secrets.GHCR_USERNAME }} --password-stdin &&
@@ -82,10 +82,10 @@ jobs:
                 export IMAGE_TAG=${{ env.IMAGE_TAG }} &&
           
                 # Pull the new image
-                docker-compose -f /app/docker-compose.yml pull &&
+                docker-compose -f /docker-compose-collection/cicd-handon/docker-compose.yml pull &&
           
                 # Restart the containers with the new image
-                docker-compose -f /app/docker-compose.yml up -d
+                docker-compose -f /docker-compose-collection/cicd-handon/docker-compose.yml up -d
               '
   
       

@@ -46,6 +46,7 @@ jobs:
       - name: Build Docker image
         run: |
           docker-compose build
+          docker images 
           docker tag ghcr.io/haihungnguyenn/cicd-handon/api:latest ghcr.io/haihungnguyenn/cicd-handon/api:${{ env.IMAGE_TAG }}
 
       - name: Push Docker image
@@ -70,12 +71,15 @@ jobs:
         run: |
           ssh -i ~/.ssh/azure_vm_key \
               -o StrictHostKeyChecking=no \
-              ${{ secrets.AZURE_VM_HOST }} \
-              'bash -s' <<EOF
+              ${{ secrets.AZURE_VM_HOST }} <<'EOF'
                 # Make sure to source the environment variables
-                echo "IMAGE_TAG=${{ env.IMAGE_TAG }}" > /tmp/image_tag.env
-                source /tmp/image_tag.env
+                IMAGE_TAG=${{ env.IMAGE_TAG }}
                 echo "IMAGE_TAG is $IMAGE_TAG"
+          
+                if [ -z "$IMAGE_TAG" ]; then
+                  echo "ERROR: IMAGE_TAG is not set."
+                  exit 1
+                fi
           
                 # Navigate to the Docker Compose directory
                 cd docker-compose-collection/handon-cicd || exit 1
@@ -94,6 +98,6 @@ jobs:
           
                 # Restart the containers with the new image
                 docker-compose up -d
-              EOF
-      
+            EOF
+                
       

@@ -75,7 +75,8 @@ jobs:
               ${{ secrets.AZURE_VM_HOST }} \
               '
               echo "Login successfully" &&
-              echo "THE IMAGE TAG IS ${{ needs.build_and_publish.outputs.tag }}"
-              
-          
+              echo "THE IMAGE TAG IS ${{ needs.build_and_publish.outputs.tag }}"&&
+              cd docker-compose-collection/handon-cicd && 
+              sed -i 's|\${IMAGE_TAG}|${{ needs.build_and_publish.outputs.tag }}|g' docker-compose.yml &&
+              cat docker-compose.yml
               '

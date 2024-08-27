@@ -47,12 +47,12 @@ jobs:
       - name: Build Docker image
         run: |
           docker-compose build
-          docker images 
-          docker tag ghcr.io/haihungnguyenn/cicd-handon/api:latest ghcr.io/haihungnguyenn/cicd-handon/api:${{ env.IMAGE_TAG }}
-#
+#          docker images 
+          docker tag ghcr.io/haihungnguyenn/cicd-handon/api:latest ghcr.io/haihungnguyenn/cicd-handon/api:${{ steps.set_tag.outputs.x }}
+
       - name: Push Docker image
         run: |
-          docker push ghcr.io/haihungnguyenn/cicd-handon/api:${{ env.IMAGE_TAG }}
+          docker push ghcr.io/haihungnguyenn/cicd-handon/api:${{ steps.set_tag.outputs.x }}
 
   pull_and_run:
     runs-on: ubuntu-latest

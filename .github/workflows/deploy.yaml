@@ -78,5 +78,8 @@ jobs:
               echo "THE IMAGE TAG IS ${{ needs.build_and_publish.outputs.tag }}"&&
               cd docker-compose-collection/handon-cicd && 
               sed -i "s|image: ghcr.io/haihungnguyenn/cicd-handon/api:.*|image: ghcr.io/haihungnguyenn/cicd-handon/api:${{ needs.build_and_publish.outputs.tag }}|g" docker-compose.yml  &&
-              cat docker-compose.yml
+              docker-compose down &&
+              echo ${{ secrets.GHCR_TOKEN }} | docker login ghcr.io -u ${{ secrets.GHCR_USERNAME }} --password-stdin
+              docker-compose pull &&
+              docker-compose up -d
               '
